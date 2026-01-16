@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Tasks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-[#0f172a] text-slate-200 min-h-screen selection:bg-indigo-500/30">
+
+    <div class="max-w-3xl mx-auto px-4 py-12">
+        <header class="flex justify-between items-end mb-12">
+            <div>
+                <h1 class="text-5xl font-extrabold tracking-tight bg-gradient-to-br from-white to-slate-500 bg-clip-text text-transparent">
+                    Daily Focus
+                </h1>
+                <p class="text-slate-500 mt-2 font-medium">Stay productive, stay sharp.</p>
+            </div>
+            <a href="{% url 'todo_create' %}" class="group relative inline-flex items-center justify-center px-6 py-3 font-bold text-white transition-all duration-200 bg-indigo-600 font-pj rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-500/25">
+                + New Task
+            </a>
+        </header>
+
+        <div class="space-y-4">
+            {% for todo in todos %}
+            <div class="glass p-6 rounded-2xl flex items-center justify-between group hover:scale-[1.01] transition-all duration-300">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-1">
+                        <h3 class="text-lg font-semibold {% if todo.is_completed %}text-slate-500 line-through{% else %}text-white{% endif %}">
+                            {{ todo.title }}
+                        </h3>
+
+                        {% if todo.is_completed %}
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Completed</span>
+                        {% elif todo.status == "Due Soon" %}
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20 animate-pulse">Due Soon</span>
+                        {% elif todo.status == "Overdue" %}
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-500/10 text-rose-400 border border-rose-500/20">Overdue</span>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="text-slate-400 text-sm mb-3 leading-relaxed">{{ todo.description }}</p>
+                    
+                    <div class="flex items-center gap-4 text-[11px] font-medium text-slate-500 uppercase tracking-widest">
+                        <span class="flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            {{ todo.due_date|date:"M d, H:i" }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 ml-6">
+                    {% if not todo.is_completed %}
+                    <form action="{% url 'todo_complete' todo.id %}" method="POST">
+                        {% csrf_token %}
+                        <button class="w-10 h-10 flex items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-colors duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                    </form>
+                    {% endif %}
+                    
+                    <form action="{% url 'todo_remove' todo.id %}" method="POST">
+                        {% csrf_token %}
+                        <button class="w-10 h-10 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-20 glass rounded-3xl">
+                <p class="text-slate-500 font-medium">No tasks found. Time to relax?</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+</html>
