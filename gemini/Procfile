@@ -1,1 +1,1 @@
-web: gunicorn todo_gemini.wsgi
+web: gunicorn core.wsgi
